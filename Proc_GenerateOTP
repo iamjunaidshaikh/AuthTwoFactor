@@ -1,0 +1,40 @@
+USE [-----]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_send_otp]    Script Date: 12/20/2017 11:44:19 AM ******/
+
+/****** Created By :	Junaid Shaikh
+		Date	   :	December 20, 2017.
+		purpose    :	Generate Random OTP Code and Insert into Table For Send OTP to Register Mobile Number. 
+ ******/
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[usp_send_otp]
+(
+	@UserID		NVARCHAR(200),
+	@Token		NVARCHAR(255)
+) 
+AS BEGIN
+
+	DECLARE @phone NVARCHAR(200), 
+		    @ValidTill Datetime,
+		    @ValidFrom Datetime,
+			@otp bigint
+
+	SELECT @phone = Phone_No FROM CD_User WHERE User_ID = @UserID OR Email_ID = @UserID
+ 
+	set @otp= CONVERT(bigint,RAND() * 1000000)
+	SELECT @otp
+	set @ValidTill=DATEADD(mi, 15, getdate()) 
+	SET @ValidFrom = GetDate()
+	
+	UPDATE User_AuthTwoFactor
+	SET isExpired = 1 WHERE User_ID = @UserID AND Token = @Token
+
+	INSERT INTO User_AuthTwoFactor 
+	(User_ID, OTP, Email_ID, Phone_NO, ValidFrom, ValidTill, isExpired, Token)
+	VALUES (@UserID, @otp, NULL, @Phone, @ValidFrom, @ValidTill, 0, @Token)
+
+END
