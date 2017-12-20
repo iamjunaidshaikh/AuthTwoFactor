@@ -1,0 +1,38 @@
+USE [im3_development_db]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_verify_otp]    Script Date: 12/20/2017 12:32:58 PM ******/
+/****** Created By :	Junaid Shaikh
+		Date	   :	December 20, 2017.
+		purpose    :	For Varify the user OTP code and valid user for different instance using token number. 
+ ******/
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[usp_verify_otp]
+(
+	@UserID		NVARCHAR(200),
+	@OTP		BIGINT,
+	@Token      NVARCHAR(255)
+) 
+AS BEGIN
+
+	IF EXISTS (SELECT User_ID FROM User_AuthTwoFactor 
+				WHERE User_ID = @UserID 
+			    AND OTP = @OTP 
+				AND GETDATE() BETWEEN ValidFrom AND ValidTill 
+				AND ISNULL(isExpired,0) = 0
+				AND Token=@Token) BEGIN
+		UPDATE User_AuthTwoFactor SET isExpired = 1 WHERE User_ID = @UserID AND OTP = @OTP 
+		SELECT 1
+	END ELSE IF EXISTS (SELECT User_ID FROM User_AuthTwoFactor 
+				WHERE User_ID = @UserID 
+			    AND OTP = @OTP 
+				AND GETDATE() > ValidTill
+				AND Token=@Token) BEGIN
+		SELECT 2
+	END ELSE BEGIN
+		SELECT 0
+	END	
+END
