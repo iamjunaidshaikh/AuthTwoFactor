@@ -1,0 +1,31 @@
+USE [-----]
+GO
+
+/****** Object:  Table [dbo].[User_AuthTwoFactor]    Script Date: 12/20/2017 12:09:10 PM ******/
+/****** Created By :	Junaid Shaikh
+		    Date	     :	December 20, 2017.
+		    purpose    :	For Maintaing OTP and User Information. 
+ ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[User_AuthTwoFactor](
+	[IUserAuthTwoFactorID] [bigint] IDENTITY(1,1) NOT NULL,
+	[User_ID] [nvarchar](200) NOT NULL,
+	[OTP] [int] NOT NULL,
+	[Email_ID] [nvarchar](50) NULL,
+	[Phone_NO] [nvarchar](50) NOT NULL,
+	[ValidFrom] [datetime] NOT NULL,
+	[ValidTill] [datetime] NOT NULL,
+	[isExpired] [bit] NOT NULL,
+	[Token] [nvarchar](255) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[IUserAuthTwoFactorID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
